@@ -11,7 +11,7 @@ public class GuiSlotModSettings extends GuiScrollingList {
 	GuiChooseMods parent;
 	
 	public GuiSlotModSettings(GuiChooseMods parent) {
-		super(Minecraft.getMinecraft(), 160, 0, 30, parent.height - 30, 0, 20);
+		super(Minecraft.getMinecraft(), 160, 0, 30, parent.height - 40, 0, 20);
 		this.parent = parent;
 	}
 
@@ -22,7 +22,7 @@ public class GuiSlotModSettings extends GuiScrollingList {
 
 	@Override
 	protected void elementClicked(int index, boolean doubleClick) {
-		parent.select = index;
+		parent.setSelected(index);
 		if(doubleClick) {
 			ModConfig config = PlayersChoice.instance.settings.mods[index];
 			config.enabled = !config.enabled;
@@ -31,7 +31,7 @@ public class GuiSlotModSettings extends GuiScrollingList {
 
 	@Override
 	protected boolean isSelected(int index) {
-		return parent.select == index;
+		return parent.getSelect() == index;
 	}
 
 	@Override
