@@ -1,6 +1,7 @@
 package vazkii.playerschoice;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -25,8 +26,7 @@ public class PlayersChoice {
 	@Instance
 	public static PlayersChoice instance;
 	
-	private File jsonFile;
-	private File fmlPropFile;
+	private File markerFile;
 	
 	public ModSettings settings;
 
@@ -35,16 +35,26 @@ public class PlayersChoice {
 		MinecraftForge.EVENT_BUS.register(this);
 		
 		File configFolder = event.getSuggestedConfigurationFile().getParentFile();
-		fmlPropFile = new File(configFolder, "fmlModState.properties");
-		jsonFile = new File(configFolder, "playerschoice.json");
+		File fmlPropFile = new File(configFolder, "fmlModState.properties");
+		File jsonFile = new File(configFolder, "playerschoice.json");
+		markerFile = new File(configFolder.getParentFile(), "playerschoice.marker");
 		
 		settings = new ModSettings(jsonFile, fmlPropFile);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void tick(ClientTickEvent event) {
-		if(event.phase == Phase.START && Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu && !fmlPropFile.exists())
+		if(event.phase == Phase.START && Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu && !markerFile.exists())
 			Minecraft.getMinecraft().displayGuiScreen(new GuiChooseMods());
+	}
+	
+	public void addMarker() {
+		if(!markerFile.exists())
+			try {
+				markerFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 }

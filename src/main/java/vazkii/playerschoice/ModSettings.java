@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
+import ibxm.Player;
+
 public class ModSettings {
 
 	private static final Gson PRETTY_GSON = new GsonBuilder().setPrettyPrinting().create();

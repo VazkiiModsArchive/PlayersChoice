@@ -99,6 +99,8 @@ public class GuiChooseMods extends GuiScreen {
 		switch(button.id) {
 		case 0:
 			PlayersChoice.instance.settings.commit();
+			PlayersChoice.instance.addMarker();
+
 			if(!didChanges())
 				mc.displayGuiScreen(null);
 			else FMLCommonHandler.instance().exitJava(0, false);
