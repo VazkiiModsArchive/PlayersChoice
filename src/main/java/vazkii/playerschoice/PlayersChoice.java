@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -21,12 +22,23 @@ public class PlayersChoice {
 	public static final String BUILD = "GRADLE:BUILD";
 	public static final String VERSION = "GRADLE:VERSION-" + BUILD;	
 	
+	@Instance
+	public static PlayersChoice instance;
+	
+	private File jsonFile;
 	private File fmlPropFile;
 	
+	public ModSettings settings;
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		fmlPropFile = new File(event.getSuggestedConfigurationFile().getParentFile(), "fmlModState.properties");
+		
+		File configFolder = event.getSuggestedConfigurationFile().getParentFile();
+		fmlPropFile = new File(configFolder, "fmlModState.properties");
+		jsonFile = new File(configFolder, "playerschoice.json");
+		
+		settings = new ModSettings(jsonFile, fmlPropFile);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
