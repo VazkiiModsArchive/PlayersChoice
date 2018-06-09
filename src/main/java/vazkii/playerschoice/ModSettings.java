@@ -74,6 +74,7 @@ public class ModSettings {
 		public String desc;
 		public String website;
 		public String category = "";
+		public String group = "";
 		public boolean base;
 		
 		public transient boolean enabled;
