@@ -2,6 +2,8 @@ package vazkii.playerschoice;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
@@ -11,20 +13,43 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import scala.actors.threadpool.Arrays;
 import vazkii.playerschoice.ModSettings.ModConfig;
 
 public class GuiChooseMods extends GuiScreen {
 
 	private GuiSlotModSettings settingsList;
 	
-	private int select = 0;
+	private ModConfig first = null;
+	private ModConfig mod = null;
 	private boolean didOk = false;
+	
+	public List<ModSlot> slots;
+	
+	public GuiChooseMods() {
+
+	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
 		
-		select = 0;
+		List<ModConfig> configs = new ArrayList(Arrays.asList(PlayersChoice.instance.settings.mods));
+		Collections.sort(configs);
+		slots = new ArrayList();
+		String curr = "";
+		for(ModConfig config : configs) {
+			if(!config.category.equals(curr))
+				slots.add(new ModSlot(null, config.category));
+			
+			slots.add(new ModSlot(config, ""));
+			if(first == null)
+				first = config;
+			
+			curr = config.category;
+		}
+		
+		mod = first;
 		settingsList = new GuiSlotModSettings(this);
 		
 		buttonList.add(new GuiButton(0, 20, height - 35, 120, 20, I18n.format("gui.done")));
@@ -45,8 +70,8 @@ public class GuiChooseMods extends GuiScreen {
 			drawRect(0, height - 40, 160, height, 0xDD000000);
 			drawCenteredString(mc.fontRenderer, I18n.format("playerschoice.mod_options"), 80, 10, 0xFFFFFFFF);
 			
-			if(select < PlayersChoice.instance.settings.mods.length) 
-				renderModInfo(PlayersChoice.instance.settings.mods[select]);
+			if(mod != null) 
+				renderModInfo();
 		} else {
 			GlStateManager.scale(2F, 2F, 2F);
 			drawCenteredString(mc.fontRenderer, I18n.format("playerschoice.name"), width / 4, height / 4 - 40, 0x22FFFF);
@@ -63,14 +88,14 @@ public class GuiChooseMods extends GuiScreen {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 	
-	private void renderModInfo(ModConfig config) {
+	private void renderModInfo() {
 		GlStateManager.scale(2F, 2F, 2F);
-		mc.fontRenderer.drawStringWithShadow(config.name, 90, 10, 0xFFFFFF);
+		mc.fontRenderer.drawStringWithShadow(mod.name, 90, 10, 0xFFFFFF);
 		GlStateManager.scale(0.5F, 0.5F, 0.5F);
 		
-		mc.fontRenderer.drawStringWithShadow(I18n.format("playerschoice.subtitle_" + config.enabled), 180, 40, 0x999999);
+		mc.fontRenderer.drawStringWithShadow(I18n.format("playerschoice.subtitle_" + mod.enabled), 180, 40, 0x999999);
 		
-		String desc = config.desc.replaceAll("\\&", "\u00A7");
+		String desc = mod.desc.replaceAll("\\&", "\u00A7");
 		List<String> strings = mc.fontRenderer.listFormattedStringToWidth(desc, Math.min(500, width - 200));
 		for(int i = 0; i < strings.size(); i++)
 			mc.fontRenderer.drawStringWithShadow(strings.get(i), 180, 60 + i * 10, 0xFFFFFF);
@@ -108,7 +133,7 @@ public class GuiChooseMods extends GuiScreen {
 			try {
 				Class<?> oclass = Class.forName("java.awt.Desktop");
 				Object object = oclass.getMethod("getDesktop").invoke(null);
-				oclass.getMethod("browse", URI.class).invoke(object, new URI(PlayersChoice.instance.settings.mods[select].website));
+				oclass.getMethod("browse", URI.class).invoke(object, new URI(mod.website));
 			}
 			catch(Throwable e) {
 				e.printStackTrace();
@@ -120,20 +145,31 @@ public class GuiChooseMods extends GuiScreen {
 		} 
 	}
 	
-	public void setSelected(int select) {
-		this.select = select;
+	public void setSelected(ModConfig mod) {
+		this.mod = mod;
 		setupButtons();
 	}
 	
-	public int getSelect() {
-		return select;
+	public ModConfig getSelect() {
+		return mod;
 	}
 	
 	private void setupButtons() {
-		ModConfig config = PlayersChoice.instance.settings.mods[select];
 		buttonList.get(0).visible = didOk;
-		buttonList.get(1).visible = didOk && config.website != null && !config.website.isEmpty();
+		buttonList.get(1).visible = didOk && mod.website != null && !mod.website.isEmpty();
 		buttonList.get(2).visible = !didOk;
+	}
+	
+	public class ModSlot {
+		
+		public final ModConfig config;
+		public final String category;
+		
+		public ModSlot(ModConfig config, String category) {
+			this.config = config;
+			this.category = category;
+		}
+		
 	}
 	
 }

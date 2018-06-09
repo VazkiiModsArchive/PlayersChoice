@@ -67,15 +67,27 @@ public class ModSettings {
 		}
 	}
 	
-	public static class ModConfig {
+	public static class ModConfig implements Comparable<ModConfig> {
 		
 		public String id;
 		public String name;
 		public String desc;
 		public String website;
+		public String category = "";
 		public boolean base;
 		
 		public transient boolean enabled;
+
+		@Override
+		public int compareTo(ModConfig o) {
+			if(category.isEmpty() && !o.category.isEmpty())
+				return 1;
+			
+			int diff = category.compareTo(o.category);
+			if(diff == 0)
+				return name.compareTo(o.name);
+			return diff;
+		}
 		
 	}
 	
