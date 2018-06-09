@@ -57,7 +57,7 @@ public class GuiChooseMods extends GuiScreen {
 				drawCenteredString(mc.fontRenderer, strings.get(i), width / 2, height / 2 - 40 + i * 10, 0xFFFFFF);
 		}
 		
-		if(didChanges())
+		if(didOk)
 			drawCenteredString(mc.fontRenderer, I18n.format("playerschoice.needs_restart"), 80, height - 12, 0xFFFF00);
 		
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -101,9 +101,7 @@ public class GuiChooseMods extends GuiScreen {
 			PlayersChoice.instance.settings.commit();
 			PlayersChoice.instance.addMarker();
 
-			if(!didChanges())
-				mc.displayGuiScreen(null);
-			else FMLCommonHandler.instance().exitJava(0, false);
+			FMLCommonHandler.instance().exitJava(0, false);
 			
 			break;
 		case 1:
@@ -120,14 +118,6 @@ public class GuiChooseMods extends GuiScreen {
 			didOk = true;
 			setupButtons();
 		} 
-	}
-	
-	private boolean didChanges() {
-		for(ModConfig config : PlayersChoice.instance.settings.mods)
-			if(config.enabled != config.base)
-				return true;
-		
-		return false;
 	}
 	
 	public void setSelected(int select) {
