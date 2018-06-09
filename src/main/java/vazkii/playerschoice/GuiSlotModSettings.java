@@ -27,10 +27,8 @@ public class GuiSlotModSettings extends GuiScrollingList {
 		ModSlot slot = parent.slots.get(index);
 		if(slot.config != null) {
 			parent.setSelected(slot.config);
-			if(doubleClick) {
-				ModConfig config = PlayersChoice.instance.settings.mods[index];
-				config.enabled = !config.enabled;
-			}
+			if(doubleClick)
+				slot.config.enabled = !slot.config.enabled;
 		}
 	}
 
