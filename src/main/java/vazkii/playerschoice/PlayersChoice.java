@@ -2,7 +2,7 @@ package vazkii.playerschoice;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -20,6 +20,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.ProgressManager;
+import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -85,6 +87,11 @@ public class PlayersChoice {
 		List<ModContainer> activeMods = ReflectionHelper.getPrivateValue(LoadController.class, controller, "activeModList");
 		int preInit = ModState.PREINITIALIZED.ordinal();
 
+		ProgressBar preInitBar = null;
+		Iterator<ProgressBar> it = ProgressManager.barIterator();
+		while(it.hasNext())
+			preInitBar = it.next();
+		
 		for(ModContainer container : mods)
 			if(container instanceof FMLModContainer && container.getMod() != this && loader.getModState(container).ordinal() < preInit) {
 				states.put(container, ModState.DISABLED);
@@ -95,7 +102,9 @@ public class PlayersChoice {
 				ReflectionHelper.setPrivateValue(Loader.class, loader, mods, "mods");
 
 				activeMods.remove(container);
+				preInitBar.step("NUKING MODS");
 			}
+		
 	}
 
 }
