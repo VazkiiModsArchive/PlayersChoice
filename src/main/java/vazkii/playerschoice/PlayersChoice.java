@@ -2,8 +2,11 @@ package vazkii.playerschoice;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -23,6 +26,7 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -92,19 +96,30 @@ public class PlayersChoice {
 		while(it.hasNext())
 			preInitBar = it.next();
 		
+		ConcurrentHashMap<Object, ?> registeredObjs = ReflectionHelper.getPrivateValue(EventBus.class, MinecraftForge.EVENT_BUS, "listeners");
+		Enumeration<Object> keys = registeredObjs.keys();
+		List<Object> removeThese = new ArrayList();
+		while(keys.hasMoreElements()) {
+			Object o = keys.nextElement();
+			Class clazz = o.getClass();
+			if(!clazz.getName().contains("net.minecraftforge.") && clazz != this.getClass())
+				removeThese.add(o);
+		}
+		for(Object o : removeThese)
+			MinecraftForge.EVENT_BUS.unregister(o);
+		
 		for(ModContainer container : mods)
 			if(container instanceof FMLModContainer && container.getMod() != this && loader.getModState(container).ordinal() < preInit) {
 				states.put(container, ModState.DISABLED);
 
 				List<ModContainer> localmods = Lists.newArrayList(mods);
-				localmods.remove(container);
+				localmods.remove(container);	
 				mods = ImmutableList.copyOf(localmods);
 				ReflectionHelper.setPrivateValue(Loader.class, loader, mods, "mods");
 
 				activeMods.remove(container);
 				preInitBar.step("NUKING MODS");
 			}
-		
 	}
 
 }
