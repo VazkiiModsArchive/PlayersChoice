@@ -64,6 +64,8 @@ public class GuiSlotModSettings extends GuiScrollingList {
 		} else {
 			int color = slot.config.enabled ? 0x55FF55 : 0xFF5555;
 			String prefix = slot.config.enabled ? "\u2714 " : "\u2718 ";
+			if(slot.config.group != null && !slot.config.group.isEmpty() && slot.config.category != null && !slot.config.category.isEmpty())
+				prefix = slot.config.enabled ? "\u25CF " : "\u25CB ";
 			font.drawStringWithShadow(prefix + slot.config.name, left + 5, slotTop + 4, color);
 		}
 	}
