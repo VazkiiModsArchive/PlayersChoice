@@ -56,9 +56,11 @@ public class PlayersChoice {
 		File configFolder = event.getSuggestedConfigurationFile().getParentFile();
 		File fmlPropFile = new File(configFolder, "fmlModState.properties");
 		File jsonFile = new File(configFolder, "playerschoice.json");
-		markerFile = new File(configFolder.getParentFile(), "playerschoice.marker");
+		File instanceDir = configFolder.getParentFile();
+		File filesDir = new File(configFolder, "playerschoice_files");
+		markerFile = new File(instanceDir, "playerschoice.marker");
 
-		settings = new ModSettings(jsonFile, fmlPropFile);
+		settings = new ModSettings(jsonFile, fmlPropFile, instanceDir, filesDir);
 
 		if(!markerFile.exists()) try {
 			nukeMods();
