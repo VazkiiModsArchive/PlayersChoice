@@ -1,0 +1,9 @@
+playerschoice.mod_options=模组选项
+playerschoice.subtitle_true=（在列表中双击以禁用）
+playerschoice.subtitle_false=（在列表中双击以启用）
+playerschoice.website=查看模组网站
+playerschoice.needs_restart=需要重启游戏
+playerschoice.name=玩家的选择
+playerschoice.info=因为你是初次游玩此模组包，请选择你想要加载的模组。
+playerschoice.ok=好的
+playerschoice.no_category=未分类
