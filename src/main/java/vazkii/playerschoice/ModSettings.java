@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -65,8 +63,8 @@ public class ModSettings {
 	}
 	
 	public void commit() {
-		Map<String, Boolean> modSettings = new HashMap();
-		List<String> copyFiles = new ArrayList();
+		Map<String, Boolean> modSettings = new HashMap<>();
+		Map<String, Boolean> copyFiles = new HashMap<>();
 		for(ModConfig m : mods) {
 			putMod(modSettings, m.id, m.enabled);
 			
@@ -76,7 +74,7 @@ public class ModSettings {
 			
 			if(m.enabled && m.copyFiles != null)
 				for(String s : m.copyFiles)
-					copyFiles.add(s);
+					copyFiles.put(s, m.copyContents);
 		}
 		
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(out))) {
@@ -90,16 +88,14 @@ public class ModSettings {
 			e.printStackTrace();
 		}
 		
-		for(String s : copyFiles) {
+		for(String s : copyFiles.keySet()) {
+			Boolean copyContents = copyFiles.get(s);
 			File file = new File(filesDir, s);
-			File target = new File(instanceDir, s);
-			try {
-				if(file.isDirectory())
-					FileUtils.copyDirectory(file, target);
-				else FileUtils.copyFile(file, target);
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+			if (copyContents)
+				for (String child : file.list())
+					copyFileOrDirectory(new File(file, child), new File(instanceDir, child));
+			else
+				copyFileOrDirectory(file, new File(instanceDir, s));
 		}
 	}
 	
@@ -112,6 +108,16 @@ public class ModSettings {
 			if(!curr && enabled)
 				map.put(mod, enabled);
 		} else map.put(mod, enabled);	
+	}
+
+	private void copyFileOrDirectory(File file, File target) {
+		try {
+			if(file.isDirectory())
+				FileUtils.copyDirectory(file, target);
+			else FileUtils.copyFile(file, target);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static class ModConfig implements Comparable<ModConfig> {
@@ -126,6 +132,7 @@ public class ModSettings {
 		
 		public String[] extraMods = new String[0];
 		public String[] copyFiles = new String[0];
+		public boolean copyContents = false;
 		
 		public transient boolean enabled;
 
