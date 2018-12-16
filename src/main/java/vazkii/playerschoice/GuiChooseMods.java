@@ -34,7 +34,7 @@ public class GuiChooseMods extends GuiScreen {
 	public void initGui() {
 		super.initGui();
 		
-		List<ModConfig> configs = new ArrayList(Arrays.asList(PlayersChoice.instance.settings.mods));
+		List<ModConfig> configs = new ArrayList(Arrays.asList(PlayersChoice.instance.data.mods));
 		Collections.sort(configs);
 		slots = new ArrayList();
 		String curr = "";

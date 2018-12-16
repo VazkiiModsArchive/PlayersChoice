@@ -31,7 +31,7 @@ public class GuiSlotModSettings extends GuiScrollingList {
 				slot.config.enabled = !slot.config.enabled;
 				
 				if(slot.config.enabled && !slot.config.group.isEmpty()) {
-					for(ModConfig mod : PlayersChoice.instance.settings.mods)
+					for(ModConfig mod : PlayersChoice.instance.data.mods)
 						if(mod != slot.config && mod.group.equals(slot.config.group))
 							mod.enabled = false;
 				}

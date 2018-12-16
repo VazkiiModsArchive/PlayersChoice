@@ -14,13 +14,15 @@ import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonWriter;
 
 public class ModSettings {
 
 	private static final Gson PRETTY_GSON = new GsonBuilder().setPrettyPrinting().create();
 	
-	public ModConfig[] mods;
+	public DataHolder holder;
+	
 	private final File in, out;
 	private final File instanceDir, filesDir;
 	
@@ -39,10 +41,10 @@ public class ModSettings {
 	public void read() {
 		try {
 			if(in.exists()) 
-				mods = PRETTY_GSON.fromJson(new FileReader(in), ModConfig[].class);
+				holder = PRETTY_GSON.fromJson(new FileReader(in), DataHolder.class);
 		} catch(IOException e) {}
 		
-		if(mods == null) {
+		if(holder == null) {
 			ModConfig example = new ModConfig();
 			example.id = "example";
 			example.name = "Example Mod";
@@ -50,24 +52,25 @@ public class ModSettings {
 			example.website = "https://vazkii.us/";
 			example.base = true;
 			
-			mods = new ModConfig[] { example };
+			holder = new DataHolder();
+			holder.mods = new ModConfig[] { example };
 			write();
 		}
 		
-		for(ModConfig m : mods)
+		for(ModConfig m : holder.mods)
 			m.enabled = m.base;
 	}
 	
 	public void write() {
 		try (JsonWriter writer = PRETTY_GSON.newJsonWriter(new FileWriter(in))) {
-			PRETTY_GSON.toJson(mods, ModConfig[].class, writer);
+			PRETTY_GSON.toJson(holder, DataHolder.class, writer);
 		} catch(IOException e) {}
 	}
 	
 	public void commit() {
 		Map<String, Boolean> modSettings = new HashMap();
 		List<String> copyFiles = new ArrayList();
-		for(ModConfig m : mods) {
+		for(ModConfig m : holder.mods) {
 			putMod(modSettings, m.id, m.enabled);
 			
 			if(m.extraMods != null)
@@ -112,6 +115,15 @@ public class ModSettings {
 			if(!curr && enabled)
 				map.put(mod, enabled);
 		} else map.put(mod, enabled);	
+	}
+	
+	public static class DataHolder {
+		
+		public ModConfig[] mods = new ModConfig[0];
+		
+		@SerializedName("crashing_mods")
+		public List<String> crashingMods = new ArrayList();
+		
 	}
 	
 	public static class ModConfig implements Comparable<ModConfig> {
